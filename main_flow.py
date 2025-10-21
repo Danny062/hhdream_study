@@ -2,11 +2,11 @@ import asyncio
 import json
 from pathlib import Path
 
-from config import config
-from html_parser import parse_qa_requirements
-from qb_client import QBClient
-from read_write_excel import read_material_numbers_from_excel
-from web_scraper import WebScraper
+from info_extraction.config import config
+from info_extraction.html_parser import parse_qa_requirements
+from info_extraction.qb_client import QBClient
+from info_extraction.read_write_excel import read_material_numbers_from_excel
+from info_extraction.web_scraper import WebScraper
 
 
 async def process_material(mano: str, scraper: WebScraper, client: QBClient, output_folder: Path):

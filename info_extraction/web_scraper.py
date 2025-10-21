@@ -3,7 +3,7 @@ from pathlib import Path
 
 import nodriver as uc
 
-from config import Config
+from info_extraction.config import Config
 
 
 class WebScraper:
