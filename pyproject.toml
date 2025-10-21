@@ -1,0 +1,15 @@
+[project]
+name = "hhd-study"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "bs4>=0.0.2",
+    "dotenv>=0.9.9",
+    "nodriver>=0.47.0",
+    "openpyxl>=3.1.5",
+    "pandas>=2.3.3",
+    "pymupdf4llm>=0.0.27",
+    "quickbase-client>=0.9.0",
+    "xlrd>=2.0.2",
+]

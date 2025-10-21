@@ -1,0 +1,36 @@
+# Ignore Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore test outputs and logs
+*.log
+ES.C95914/
+test_output/
+downloads/
+# If *.json and *.html are *only* outputs within specific directories,
+# consider being more specific, e.g.:
+# downloads/*.json
+# downloads/*.html
+# test_output/*.json
+# test_output/*.html
+# Otherwise, if they are always temporary outputs, the current broad rule is okay.
+# For now, I'll keep them broad as per your original intent, but add a note.
+*.json # Be careful: this ignores all JSON files, including potential config.
+*.html # Be careful: this ignores all HTML files, including potential templates.
+
+# If 'testing_script/' contains temporary or scratch scripts not meant for the repo:
+testing_script/
+
+# Ignore environment files
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables file
+#.env
+/get_image.py
+/model.py
+/qb_nodriver.py
