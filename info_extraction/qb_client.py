@@ -2,8 +2,8 @@ import re
 
 from quickbase_client import QuickbaseApiClient
 
-from config import Config, load_config
-from model import Material
+from info_extraction.config import Config, load_config
+from info_extraction.model import Material
 
 
 class QBClient:
@@ -15,7 +15,7 @@ class QBClient:
         self.client = QuickbaseApiClient(
             realm_hostname=cfg.realm,
             user_token=cfg.token,
-            )
+        )
 
     def _query_table(self, table_id: str, material_number: str):
         """Helper to query a table by material number."""
@@ -80,7 +80,8 @@ class QBClient:
             supplier_name=component_data.get(self.cfg.supplier_name_field),
             image_url=image_urls,
             qa_requirements=None,
-            )
+        )
+
 
 if __name__ == "__main__":
     config = load_config()
