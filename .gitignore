@@ -32,5 +32,4 @@ env/
 # Environment variables file
 #.env
 /get_image.py
-/model.py
 /qb_nodriver.py
