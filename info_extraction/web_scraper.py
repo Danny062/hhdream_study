@@ -1,9 +1,10 @@
 import asyncio
+import shutil
 from pathlib import Path
 
 import nodriver as uc
 
-from config import Config
+from info_extraction.config import Config
 
 
 class WebScraper:
@@ -17,7 +18,8 @@ class WebScraper:
 
     async def __aenter__(self):
         """Initializes the browser and logs in."""
-        self.browser = await uc.start(headless=self.headless)
+
+        self.browser = await uc.start(headless=self.headless, user_data_dir=Path("temp_data"))
         self.page = await self.browser.get(self.cfg.login_url)
         await self._login()
         return self
@@ -27,6 +29,7 @@ class WebScraper:
         if self.browser:
             print("Closing browser...")
             self.browser.stop()
+            if Path("temp_data").is_dir(): shutil.rmtree("temp_data", ignore_errors=True)
 
     async def _login(self):
         """Performs the login sequence, handling a potential two-step flow."""
