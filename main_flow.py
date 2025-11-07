@@ -1,7 +1,9 @@
 import json
+import time
 from pathlib import Path
 
 import nodriver as uc
+from nodriver.core.util import deconstruct_browser
 
 from info_extraction.config import config
 from info_extraction.html_parser import parse_qa_requirements, parse_supplier_material_no
@@ -71,6 +73,7 @@ async def run_extraction(file_list, output_folder=None):
         async with WebScraper(config, headless=config.headless) as scraper:
             for mano in material_numbers:
                 await process_material(mano, scraper, qb_client, output_folder_folder)
+    deconstruct_browser()
 
 
 async def extract_data(file_list, output_folder: Path = None):
@@ -78,9 +81,13 @@ async def extract_data(file_list, output_folder: Path = None):
     await run_extraction(file_list, output_folder)
 
 
+
 if __name__ == "__main__":
-    parent_dir = Path("/Users/ai/PycharmProjects/POC/hhd_study/ES.C95914")
+    parent_dir = Path("/root/PycharmProjects/hhdream_study/ES.C95914")
     file_list = [str(file) for file in parent_dir.glob("*.xls")]
 
     # Run extraction ONCE for all files — avoid launching loop repeatedly.
-    uc.loop().run_until_complete(run_extraction(file_list))
+    uc.loop().run_until_complete(run_extraction(file_list[0:2]))
+    print("I go to school by bus!!!!")
+    time.sleep(10)
+    print("I am late!!!!")

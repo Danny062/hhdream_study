@@ -4,7 +4,7 @@ from pathlib import Path
 
 import nodriver as uc
 
-from info_extraction.config import Config
+from info_extraction.config import Config, config
 
 
 class WebScraper:
@@ -18,8 +18,11 @@ class WebScraper:
 
     async def __aenter__(self):
         """Initializes the browser and logs in."""
-
-        self.browser = await uc.start(headless=self.headless, user_data_dir=Path("temp_data"))
+        path_to_chrome = "/opt/google/chrome/chrome"
+        self.browser = await uc.start(headless=self.headless,
+                                      browser_executable_path=path_to_chrome,
+                                      no_sandbox=True
+                                      )
         self.page = await self.browser.get(self.cfg.login_url)
         await self._login()
         return self
@@ -29,7 +32,6 @@ class WebScraper:
         if self.browser:
             print("Closing browser...")
             self.browser.stop()
-            if Path("temp_data").is_dir(): shutil.rmtree("temp_data", ignore_errors=True)
 
     async def _login(self):
         """Performs the login sequence, handling a potential two-step flow."""
@@ -98,3 +100,19 @@ class WebScraper:
 
         except Exception as e:
             print(f"Failed to download {image_url}: {e}")
+
+
+async def main():
+    async with WebScraper(config, headless=config.headless) as scraper:
+        page = await scraper.browser.get("https://example.com")
+        html = await page.get_content()
+        current_url = page.url
+        print(f"HTML: {html}")
+        print(f"URL:   {current_url}")
+
+        # Save a screenshot to verify headless rendering
+        await page.save_screenshot("example.png")
+
+
+if __name__ == "__main__":
+    uc.loop().run_until_complete(main())
