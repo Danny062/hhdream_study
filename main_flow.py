@@ -1,9 +1,10 @@
-import asyncio
 import json
 from pathlib import Path
 
+import nodriver as uc
+
 from info_extraction.config import config
-from info_extraction.html_parser import parse_qa_requirements
+from info_extraction.html_parser import parse_qa_requirements, parse_supplier_material_no
 from info_extraction.qb_client import QBClient
 from info_extraction.read_write_excel import read_material_numbers_from_excel
 from info_extraction.web_scraper import WebScraper
@@ -25,6 +26,10 @@ async def process_material(mano: str, scraper: WebScraper, client: QBClient, out
             html = await scraper.get_qa_html(rid)
             qa_reqs = parse_qa_requirements(html)
             material_data["qa_requirements"] = qa_reqs
+
+            sup_mat_no = parse_supplier_material_no(html)
+            material_data["supplier_material_no"] = sup_mat_no
+
         except (ValueError, TypeError) as e:
             print(f"Invalid component_id '{comp_id}' for material {mano}: {e}")
         except Exception as e:
@@ -44,27 +49,38 @@ async def process_material(mano: str, scraper: WebScraper, client: QBClient, out
     print(f"--- Finished Material: {mano} ---\n\n\n")
 
 
-async def run_extraction(excel_path: str):
-    """Main orchestration function."""
-    material_numbers = read_material_numbers_from_excel(excel_path, config.material_number_field)
-    if not material_numbers:
-        print("No material numbers found in the Excel file.")
-        return
+async def run_extraction(file_list, output_folder=None):
+    """Main orchestration function for multiple Excel files."""
+    for excel_path in file_list:
 
-    print(f"Found {len(material_numbers)} material numbers to process.")
-    output_folder = Path("downloads") / Path(excel_path).stem
+        print(f"Processing file: {excel_path}")
+        material_numbers = read_material_numbers_from_excel(excel_path, config.material_number_field)
+        if not material_numbers:
+            print("No material numbers found in the Excel file.")
+            continue
+
+        print(f"Found {len(material_numbers)} material numbers to process.")
+        if output_folder is None:
+            output_folder = Path("downloads")
+
+        output_folder_folder = output_folder / Path(excel_path).stem
+        output_folder_folder.mkdir(parents=True, exist_ok=True)
+
+        qb_client = QBClient(config)
+
+        async with WebScraper(config, headless=config.headless) as scraper:
+            for mano in material_numbers:
+                await process_material(mano, scraper, qb_client, output_folder_folder)
+
+
+async def extract_data(file_list, output_folder: Path = None):
     output_folder.mkdir(parents=True, exist_ok=True)
-
-    qb_client = QBClient(config)
-
-    async with WebScraper(config, headless=config.headless) as scraper:
-        for mano in material_numbers:
-            await process_material(mano, scraper, qb_client, output_folder)
+    await run_extraction(file_list, output_folder)
 
 
 if __name__ == "__main__":
-    # Update this path to your actual Excel file location
     parent_dir = Path("/Users/ai/PycharmProjects/POC/hhd_study/ES.C95914")
-    for file in parent_dir.glob("*.xls"):
-        print(f"Processing file: {file}")
-        asyncio.run(run_extraction(str(file)))
+    file_list = [str(file) for file in parent_dir.glob("*.xls")]
+
+    # Run extraction ONCE for all files — avoid launching loop repeatedly.
+    uc.loop().run_until_complete(run_extraction(file_list))

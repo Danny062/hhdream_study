@@ -86,6 +86,6 @@ class QBClient:
 if __name__ == "__main__":
     config = load_config()
     qb_client = QBClient(config)
-    test_material_number = "6860340"
+    test_material_number = "6827983"
     material_details = qb_client.get_material_details(test_material_number)
     print(material_details)

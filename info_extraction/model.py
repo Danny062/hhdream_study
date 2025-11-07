@@ -6,5 +6,6 @@ class Material(TypedDict):
     component_id: Optional[str]
     cost: Optional[str]
     supplier_name: Optional[str]
+    supplier_material_no: Optional[str]
     image_url: Optional[List[str]]
     qa_requirements: Optional[dict]

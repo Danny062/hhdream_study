@@ -36,36 +36,3 @@ def parse_qa_requirements(html_content):
             i += 1
 
     return qa_requirements
-
-
-def parse_supplier_material_no(html_content):
-    # Parse HTML with BeautifulSoup
-    soup = BeautifulSoup(html_content, 'html.parser')
-
-    # Find the Supplier Material No. field
-    label_elem = soup.find('label', text="Supplier's Material No")
-    if not label_elem:
-        print("Label Supplier's Material No not found in HTML.")
-        return None
-
-    # The value is typically in the next sibling td with class 'cell'
-    cell_td = label_elem.find_next('td', class_='cell')
-    if cell_td:
-        return cell_td.get_text(strip=True).strip()
-
-    print("Value for 'Supplier Material No.' not found.")
-    return None
-
-
-if __name__ == "__main__":
-    html_path = r"/Users/ai/PycharmProjects/POC/hhd_study/temp_for_parser.html"
-    with open(html_path, "r", encoding="utf-8") as f:
-        html_content = f.read()
-
-    qa_requirements = parse_qa_requirements(html_content)
-    print("QA Requirements:")
-    for key, value in qa_requirements.items():
-        print(f"{key}: {value}")
-    supplier_material_no = parse_supplier_material_no(html_content)
-    print(f"\nSupplier Material No.: {supplier_material_no}")
-

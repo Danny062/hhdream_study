@@ -20,6 +20,7 @@ class Config:
     component_id_field: str = "Component ID#"
     material_cost_field: str = "Material Cost"
     supplier_name_field: str = "Supplier Name(EN)"
+    supplier_material_id_field: str = "Supplier Material ID#"
     image_field: str = "Image"
     related_material_field: str = "Related Material"  # Placeholder for the query field
 
@@ -37,8 +38,8 @@ def load_config() -> Config:
         attachment_table_id=os.getenv("ATTACHMENT_TABLE_ID"),
         token=os.getenv("TOKEN"),
         related_material_field=os.getenv("RELATED_MATERIAL_FIELD", "Related Material"),
-        headless=os.getenv("HEADLESS")
-        )
+        headless=True if (os.getenv("HEADLESS")) == "1" else False,
+    )
 
 
 config = load_config()
