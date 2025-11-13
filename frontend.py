@@ -1,3 +1,4 @@
+import json
 import shutil
 import time
 from pathlib import Path
@@ -5,8 +6,8 @@ from typing import Iterable
 
 import gradio as gr
 
-from main_flow import extract_data
 from info_extraction.result_to_excel import generate_reports
+from main_flow import extract_data
 
 EXCEL_SUFFIXES = {".xlsx", ".xls"}
 TEMP_DIR = Path("./temp_uploads")
@@ -85,7 +86,13 @@ async def run_extraction(files):
     upload_info = get_list_path(files)
     if not upload_info["saved_paths"]:
         # No valid files — hide download button
-        return upload_info, gr.update(value=None, visible=False)
+        # return upload_info, gr.update(value=None, visible=False)
+        failure_log = json.dumps(upload_info, indent=2)
+        return (
+            f"**Upload failed**\n\n```json\n{failure_log}\n```",
+            gr.update(value=None, visible=False),
+            gr.update(interactive=True),
+        )
 
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     output_folder = DOWNLOADS_DIR / timestamp
@@ -104,15 +111,24 @@ async def run_extraction(files):
 
     vv = await extract_data(upload_info["saved_paths"], output_folder=output_folder)
     if not vv:
+        # upload_info["message"] = "No Material number found in the Excel. :("
+        # return upload_info, gr.update(value=None, visible=False)
+        failure_log = json.dumps(upload_info, indent=2)
         upload_info["message"] = "No Material number found in the Excel. :("
-        return upload_info, gr.update(value=None, visible=False)
+        return (
+            f"**Extraction failed**\n\n```json\n{failure_log}\n```",
+            gr.update(value=None, visible=False),
+            gr.update(interactive=True),
+        )
 
     generate_reports(output_folder)
 
-    response = {
-        **upload_info,
-        "output_folder": str(output_folder.resolve()),
-    }
+    # response = {
+    #     **upload_info,
+    #     "output_folder": str(output_folder.resolve()),
+    # }
+
+    response = "# ✅ **Your file is ready! :)**"
 
     # Build a summary of generated files
     # for subfolder in output_folder.iterdir():
@@ -131,7 +147,7 @@ async def run_extraction(files):
         value=str(zip_path),
         visible=True,
         label="Download Reports (ZIP)",
-    )
+    ), gr.update(interactive=True),
 
 
 with gr.Blocks() as demo:
@@ -147,14 +163,29 @@ with gr.Blocks() as demo:
             type="filepath",
         )
 
-    output = gr.JSON(label="Upload result")
+    # output = gr.JSON(label="Upload result")
+    output = gr.Markdown(label="Upload result")
     upload_button = gr.Button("Upload")
     download_button = gr.DownloadButton("Download Reports", visible=False)
 
+    # upload_button.click(
+    #     fn=run_extraction,
+    #     inputs=file_input,
+    #     outputs=[output, download_button],
+    # )
+
     upload_button.click(
+        fn=lambda: (
+            "⏳ Processing your files… please wait.",
+            gr.update(value=None, visible=False),
+            gr.update(interactive=False),
+        ),
+        inputs=None,
+        outputs=[output, download_button, upload_button],
+    ).then(
         fn=run_extraction,
         inputs=file_input,
-        outputs=[output, download_button],
+        outputs=[output, download_button, upload_button],
     )
 
 if __name__ == "__main__":
