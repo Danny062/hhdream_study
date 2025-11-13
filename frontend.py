@@ -102,7 +102,11 @@ async def run_extraction(files):
             except ValueError:
                 continue
 
-    await extract_data(upload_info["saved_paths"], output_folder=output_folder)
+    vv = await extract_data(upload_info["saved_paths"], output_folder=output_folder)
+    if not vv:
+        upload_info["message"] = "No Material number found in the Excel. :("
+        return upload_info, gr.update(value=None, visible=False)
+
     generate_reports(output_folder)
 
     response = {

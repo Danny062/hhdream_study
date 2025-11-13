@@ -53,13 +53,14 @@ async def process_material(mano: str, scraper: WebScraper, client: QBClient, out
 
 async def run_extraction(file_list, output_folder=None):
     """Main orchestration function for multiple Excel files."""
+    valid_xlsx = False
     for excel_path in file_list:
-
         print(f"Processing file: {excel_path}")
         material_numbers = read_material_numbers_from_excel(excel_path, config.material_number_field)
         if not material_numbers:
             print("No material numbers found in the Excel file.")
             continue
+        valid_xlsx = True
 
         print(f"Found {len(material_numbers)} material numbers to process.")
         if output_folder is None:
@@ -73,12 +74,13 @@ async def run_extraction(file_list, output_folder=None):
         async with WebScraper(config, headless=config.headless) as scraper:
             for mano in material_numbers:
                 await process_material(mano, scraper, qb_client, output_folder_folder)
-    deconstruct_browser()
 
+    deconstruct_browser()
+    return valid_xlsx
 
 async def extract_data(file_list, output_folder: Path = None):
     output_folder.mkdir(parents=True, exist_ok=True)
-    await run_extraction(file_list, output_folder)
+    return await run_extraction(file_list, output_folder)
 
 
 
