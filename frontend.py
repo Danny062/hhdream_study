@@ -113,10 +113,10 @@ async def run_extraction(files):
     if not vv:
         # upload_info["message"] = "No Material number found in the Excel. :("
         # return upload_info, gr.update(value=None, visible=False)
+        upload_info["message"] = "No Material number found in the Excel."
         failure_log = json.dumps(upload_info, indent=2)
-        upload_info["message"] = "No Material number found in the Excel. :("
         return (
-            f"**Extraction failed**\n\n```json\n{failure_log}\n```",
+            f"**Extraction failed** -- No Material number found in the Excel.\n\n```json\n{failure_log}\n```",
             gr.update(value=None, visible=False),
             gr.update(interactive=True),
         )
@@ -129,13 +129,6 @@ async def run_extraction(files):
     # }
 
     response = "# ✅ **Your file is ready! :)**"
-
-    # Build a summary of generated files
-    # for subfolder in output_folder.iterdir():
-    #     if subfolder.is_dir():
-    #         response[subfolder.stem] = [p.name for p in subfolder.iterdir()]
-    #     else:
-    #         response.setdefault("files", []).append(subfolder.name)
 
     summary_dir = output_folder / "summary"
     zip_path = package_output(summary_dir)
